@@ -1,0 +1,22 @@
+spring:
+  ai:
+    model:
+      chat: ollama
+      embedding: ollama
+      audio:
+        speech: none
+        transcription: none
+      image: none
+      moderation: none
+    ollama:
+      base-url: http://10.0.0.165:11434
+      chat:
+        options:
+          model: qwen3:14b
+      embedding:
+        options:
+          model: nomic-embed-text
+    vectorstore:
+      pgvector:
+        dimensions: 768
+        table-name: vector_store_local

@@ -1,34 +1,24 @@
 spring:
   application:
     name: rag
+  profiles:
+    active: local-llm        # default to local; override to switch
 
-  # Postgres connection (matches docker-compose.yml)
   datasource:
     url: jdbc:postgresql://localhost:5432/rag
     username: rag-user
-    password: rag-user
+    password: ${DB_PASSWORD:rag-user}   # externalized, local fallback
 
   ai:
-    openai:
-      api-key: ${OPENAI_API_KEY}
-      chat:
-        options:
-          model: gpt-5.4-mini   # current cheap workhorse; gpt-4o-mini is legacy
-          temperature: 0.1      # if your model rejects temperature, delete this line
-      embedding:
-        options:
-          model: text-embedding-3-small   # 1536 dimensions
-
     vectorstore:
       pgvector:
-        initialize-schema: true     # auto-create extension + vector_store table + index
+        initialize-schema: true
         index-type: HNSW
         distance-type: COSINE_DISTANCE
-        dimensions: 1536            # must match the embedding model's output
+        # dimensions + table-name are set per profile
 
-# Application-specific RAG knobs
 app:
   rag:
     top-k: 5
-    similarity-threshold: 0.0   # 0 accepts all; raise to drop weak matches
+    similarity-threshold: 0.0
     injection-defense: true
