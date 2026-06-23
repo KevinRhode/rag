@@ -44,7 +44,7 @@ jobs:
           cache: maven
 
       - name: Build and test
-        run: ./mvnw -B verify
+        run: bash ./mvnw -B verify
 
   trivy:
     runs-on: ubuntu-latest
