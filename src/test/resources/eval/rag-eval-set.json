@@ -1,0 +1,18 @@
+[
+  {
+    "question": "What does OWASP A03 cover?",
+    "expectedSources": ["owasp-a03-injection.md"]
+  },
+  {
+    "question": "How do you prevent SQL injection?",
+    "expectedSources": ["owasp-a03-injection.md", "cwe-89-sql-injection.md"]
+  },
+  {
+    "question": "What is cross-site scripting and how is it prevented?",
+    "expectedSources": ["cwe-79-xss.md"]
+  },
+  {
+    "question": "What are the principles of secure design?",
+    "expectedSources": ["owasp-a04-insecure-design.md"]
+  }
+]

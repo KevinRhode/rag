@@ -20,5 +20,7 @@ spring:
 app:
   rag:
     top-k: 5
+    rerank: true
+    rerank-candidates: 20
     similarity-threshold: 0.0
     injection-defense: true
