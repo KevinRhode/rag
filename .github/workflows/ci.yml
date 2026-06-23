@@ -54,6 +54,18 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven           # restores ~/.m2/repository keyed on pom hashes
+
+      - name: Prime local Maven repository
+        # Pulls every parent/BOM/dependency POM into ~/.m2 so Trivy's Java
+        # analyzer reads them from disk and makes zero requests to Central.
+        run: ./mvnw -B dependency:go-offline
+
       - name: Trivy filesystem scan (vulns, secrets, misconfig)
         # Pinned to @master for convenience; pin to a release SHA to harden supply chain.
         uses: aquasecurity/trivy-action@master
