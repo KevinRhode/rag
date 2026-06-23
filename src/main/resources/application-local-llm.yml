@@ -12,7 +12,7 @@ spring:
       base-url: http://10.0.0.165:11434
       chat:
         options:
-          model: qwen3:14b
+          model: qwen2.5-coder:14b
       embedding:
         options:
           model: nomic-embed-text
