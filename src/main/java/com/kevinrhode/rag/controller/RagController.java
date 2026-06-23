@@ -38,6 +38,7 @@ public class RagController {
         return Map.of("ingestedChunks", chunks);
     }
 
+
     @PostMapping("/api/query")
     public QueryResponse query(@RequestBody QueryRequest request) {
         if (request.question() == null || request.question().isBlank()) {
@@ -45,4 +46,6 @@ public class RagController {
         }
         return ragService.answer(request.question(), request.topK());
     }
+
+
 }
