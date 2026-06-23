@@ -1,4 +1,4 @@
-package com.java.rag.security;
+package com.kevinrhode.rag.security;
 
 import java.util.ArrayList;
 import java.util.List;

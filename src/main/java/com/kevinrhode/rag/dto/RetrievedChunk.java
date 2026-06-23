@@ -1,4 +1,4 @@
-package com.java.rag.dto;
+package com.kevinrhode.rag.dto;
 
 import java.util.List;
 

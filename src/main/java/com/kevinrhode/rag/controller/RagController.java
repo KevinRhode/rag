@@ -1,12 +1,12 @@
-package com.java.rag.controller;
+package com.kevinrhode.rag.controller;
 
 import java.io.IOException;
 import java.util.Map;
 
-import com.java.rag.dto.QueryRequest;
-import com.java.rag.dto.QueryResponse;
-import com.java.rag.service.IngestionService;
-import com.java.rag.service.RagService;
+import com.kevinrhode.rag.dto.QueryRequest;
+import com.kevinrhode.rag.dto.QueryResponse;
+import com.kevinrhode.rag.service.IngestionService;
+import com.kevinrhode.rag.service.RagService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;

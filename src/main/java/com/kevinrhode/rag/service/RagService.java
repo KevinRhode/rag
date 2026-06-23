@@ -1,12 +1,12 @@
-package com.java.rag.service;
+package com.kevinrhode.rag.service;
 
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.java.rag.dto.QueryResponse;
-import com.java.rag.dto.RetrievedChunk;
-import com.java.rag.security.InjectionDefense;
+import com.kevinrhode.rag.dto.QueryResponse;
+import com.kevinrhode.rag.dto.RetrievedChunk;
+import com.kevinrhode.rag.security.InjectionDefense;
 
 
 import org.springframework.ai.chat.client.ChatClient;

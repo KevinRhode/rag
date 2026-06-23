@@ -1,4 +1,4 @@
-package com.java.rag.security;
+package com.kevinrhode.rag.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

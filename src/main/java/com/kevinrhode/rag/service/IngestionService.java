@@ -1,4 +1,4 @@
-package com.java.rag.service;
+package com.kevinrhode.rag.service;
 
 import java.io.IOException;
 import java.util.List;
