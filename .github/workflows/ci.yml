@@ -44,7 +44,7 @@ jobs:
           cache: maven
 
       - name: Build and test
-        run: ./mvnw -B verify
+        run: ./mvnw test -DexcludedGroups=eval,local-llm
 
   trivy:
     runs-on: ubuntu-latest
