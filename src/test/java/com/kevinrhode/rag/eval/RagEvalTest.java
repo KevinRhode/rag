@@ -38,7 +38,7 @@ class RagEvalTest {
         List<EvalCase> cases = loadCases();
 
         var relevancy = new RelevancyEvaluator(ChatClient.builder(chatModel));
-        var grounding = FactCheckingEvaluator.forBespokeMinicheck(ChatClient.builder(chatModel));
+//        var grounding = FactCheckingEvaluator.forBespokeMinicheck(ChatClient.builder(chatModel));
 
         int hits = 0, relevant = 0, grounded = 0;
         double reciprocalRankSum = 0;
@@ -63,7 +63,8 @@ class RagEvalTest {
                     .toList();
             var request = new EvaluationRequest(c.question(), context, resp.answer());
             if (relevancy.evaluate(request).isPass()) relevant++;
-            if (grounding.evaluate(request).isPass()) grounded++;
+            if (isGrounded(resp.answer(), context)) grounded++;
+//            if (grounding.evaluate(request).isPass()) grounded++;
 
             System.out.printf("rank=%-5s | %s%n", rank > 0 ? rank : "MISS", c.question());
         }
@@ -82,5 +83,28 @@ class RagEvalTest {
         try (var in = new ClassPathResource("eval/rag-eval-set.json").getInputStream()) {
             return mapper.readValue(in, new TypeReference<List<EvalCase>>() {});
         }
+    }
+
+    private boolean isGrounded(String answer, List<Document> context) {
+        String ctx = context.stream()
+                .map(Document::getText)
+                .collect(java.util.stream.Collectors.joining("\n---\n"));
+
+        String prompt = """
+            You are a strict fact-checker. Given the CONTEXT and an ANSWER, decide whether
+            the answer is supported by the context. Reply with exactly one word: YES or NO.
+
+            CONTEXT:
+            %s
+
+            ANSWER:
+            %s
+            """.formatted(ctx, answer);
+
+        String verdict = ChatClient.builder(chatModel).build()
+                .prompt().user(prompt).call().content();
+
+        verdict = verdict.replaceAll("(?s)<think>.*?</think>", "").trim().toUpperCase();
+        return verdict.startsWith("YES");
     }
 }
