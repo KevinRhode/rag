@@ -31,3 +31,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### AI ###
+.ai/mcp/
+.aiignore
+.aiassistant/
+
+### local ###
+application-local.properties

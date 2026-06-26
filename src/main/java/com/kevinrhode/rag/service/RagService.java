@@ -82,33 +82,47 @@ public class RagService {
         if (docs == null || docs.isEmpty()) {
             return new QueryResponse(
                     "I don't have enough information in the knowledge base to answer that.",
-                    List.of(), injectionDefenseEnabled);
+                    List.of(), List.of(), injectionDefenseEnabled);
         }
 
-        // 1b. RERANK the wide candidate set down to the final k.
-        if (rerankEnabled) {
-            docs = reranker.rerank(question, docs, k);
-        } else if (docs.size() > k) {
-            docs = docs.subList(0, k);
-        }
+        // 2. SCREEN BEFORE RERANK: quarantine flagged chunks so poisoned content never
+        //    reaches the reranker's model call or the final prompt. Flagged chunks are
+        //    reported separately for transparency rather than silently dropped.
+        List<Document> clean = new ArrayList<>();
+        List<RetrievedChunk> quarantined = new ArrayList<>();
 
-        // 2. SCREEN each (clean) chunk for injection payloads and collect the evidence.
-        List<RetrievedChunk> retrieved = new ArrayList<>();
-        List<String> texts = new ArrayList<>();
         for (Document doc : docs) {
             String text = cleanText(doc);
             List<String> flags = injectionDefenseEnabled ? injectionDefense.detect(text) : List.of();
-            Object source = doc.getMetadata().getOrDefault("source", "unknown");
-            Double score = doc.getScore();
-            retrieved.add(new RetrievedChunk(
-                    String.valueOf(source),
-                    score == null ? null : Math.round(score * 10000.0) / 10000.0,
-                    text,
-                    flags));
+            if (!flags.isEmpty()) {
+                quarantined.add(toChunk(doc, text, flags));
+            } else {
+                clean.add(doc);
+            }
+        }
+
+        if (clean.isEmpty()) {
+            return new QueryResponse(
+                    "The retrieved material was flagged by the injection defense and withheld; "
+                            + "I don't have enough trusted information to answer that.",
+                    List.of(), quarantined, injectionDefenseEnabled);
+        }
+
+        // 3. RERANK the clean set down to the final k.
+        List<Document> served = rerankEnabled
+                ? reranker.rerank(question, clean, k)
+                : (clean.size() > k ? clean.subList(0, k) : clean);
+
+        // 4. Build served chunks (clean by construction) and the model context.
+        List<RetrievedChunk> retrieved = new ArrayList<>();
+        List<String> texts = new ArrayList<>();
+        for (Document doc : served) {
+            String text = cleanText(doc);
+            retrieved.add(toChunk(doc, text, List.of()));
             texts.add(text);
         }
 
-        // 3. SPOTLIGHT the context (mark it as data) and GENERATE the grounded answer.
+        // 5. SPOTLIGHT the (clean) context and GENERATE.
         InjectionDefense.Spotlight spot = injectionDefense.spotlight(texts);
         String system = SYSTEM_PROMPT.formatted(spot.marker(), spot.marker());
         String user = "Context block:\n" + spot.formattedContext() + "\n\nQuestion: " + question;
@@ -119,12 +133,22 @@ public class RagService {
                 .call()
                 .content();
 
-        return new QueryResponse(answer, retrieved, injectionDefenseEnabled);
+        return new QueryResponse(answer, retrieved, quarantined, injectionDefenseEnabled);
     }
 
     private static String cleanText(Document doc) {
         Object clean = doc.getMetadata().get("clean_text");
         return clean != null ? clean.toString() : doc.getText();
+    }
+
+    private RetrievedChunk toChunk(Document doc, String text, List<String> flags) {
+        Object source = doc.getMetadata().getOrDefault("source", "unknown");
+        Double score = doc.getScore();
+        return new RetrievedChunk(
+                String.valueOf(source),
+                score == null ? null : Math.round(score * 10000.0) / 10000.0,
+                text,
+                flags);
     }
 
 }
