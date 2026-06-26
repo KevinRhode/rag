@@ -36,3 +36,6 @@ build/
 .ai/mcp/
 .aiignore
 .aiassistant/
+
+### local ###
+application-local.properties
