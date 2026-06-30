@@ -34,10 +34,9 @@ public class RagController {
     /** Build the index from the bundled corpus. Idempotency is a roadmap item (see README). */
     @PostMapping("/api/ingest")
     public Map<String, Object> ingest() throws IOException {
-        int chunks = ingestionService.ingestClasspathDocs();
+        int chunks = ingestionService.ingestDocs();
         return Map.of("ingestedChunks", chunks);
     }
-
 
     @PostMapping("/api/query")
     public QueryResponse query(@RequestBody QueryRequest request) {
@@ -46,6 +45,4 @@ public class RagController {
         }
         return ragService.answer(request.question(), request.topK());
     }
-
-
 }
